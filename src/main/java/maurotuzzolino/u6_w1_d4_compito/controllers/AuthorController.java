@@ -7,6 +7,7 @@ import maurotuzzolino.u6_w1_d4_compito.services.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -42,11 +43,15 @@ public class AuthorController {
         return authorService.updateById(id, payload);
     }
 
-
     // 5. DELETE /authors/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAuthor(@PathVariable long id) {
         authorService.deleteById(id);
+    }
+
+    @PostMapping("/upload-avatar/{id}")
+    public Author uploadAvatar(@PathVariable long id, @RequestParam("file") MultipartFile file) {
+        return authorService.uploadAvatar(id, file);
     }
 }

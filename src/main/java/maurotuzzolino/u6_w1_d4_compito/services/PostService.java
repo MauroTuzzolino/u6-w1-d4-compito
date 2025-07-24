@@ -1,6 +1,8 @@
 package maurotuzzolino.u6_w1_d4_compito.services;
 
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import maurotuzzolino.u6_w1_d4_compito.entities.Author;
 import maurotuzzolino.u6_w1_d4_compito.entities.Post;
 import maurotuzzolino.u6_w1_d4_compito.exceptions.BadRequestException;
@@ -12,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @Service
 public class PostService {
@@ -21,6 +26,9 @@ public class PostService {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     // 1. Lista di tutti i post
 //    public List<Post> findAll() {
@@ -96,5 +104,23 @@ public class PostService {
     public void deleteById(long id) {
         Post post = this.findById(id);
         postRepository.delete(post);
+    }
+
+    public Post uploadCover(long id, MultipartFile file) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Post con id " + id + " non trovato"));
+
+        try {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("folder", "posts_covers"));
+
+            String coverUrl = (String) uploadResult.get("secure_url");
+            post.setCover(coverUrl);
+            postRepository.save(post);
+            return post;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Errore durante l'upload della cover: " + e.getMessage());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package maurotuzzolino.u6_w1_d4_compito.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import maurotuzzolino.u6_w1_d4_compito.entities.Author;
 import maurotuzzolino.u6_w1_d4_compito.exceptions.BadRequestException;
 import maurotuzzolino.u6_w1_d4_compito.exceptions.NotFoundException;
@@ -7,14 +9,19 @@ import maurotuzzolino.u6_w1_d4_compito.payloads.NewAuthorPayload;
 import maurotuzzolino.u6_w1_d4_compito.repositories.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AuthorService {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     // 1. Ritorna tutti gli autori
     public List<Author> findAll() {
@@ -80,5 +87,23 @@ public class AuthorService {
     public void deleteById(long id) {
         Author author = this.findById(id);
         authorRepository.delete(author);
+    }
+
+    public Author uploadAvatar(long id, MultipartFile file) {
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Autore con id " + id + " non trovato"));
+
+        try {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("folder", "authors_avatars"));
+
+            String avatarUrl = (String) uploadResult.get("secure_url");
+            author.setAvatar(avatarUrl);
+            authorRepository.save(author);
+            return author;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Errore durante l'upload dell'avatar: " + e.getMessage());
+        }
     }
 }

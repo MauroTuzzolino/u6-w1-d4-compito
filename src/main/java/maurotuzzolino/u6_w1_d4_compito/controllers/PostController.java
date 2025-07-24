@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/posts")
@@ -49,4 +50,10 @@ public class PostController {
     public void deletePost(@PathVariable long id) {
         postService.deleteById(id);
     }
+
+    @PostMapping("/upload-cover/{id}")
+    public Post uploadCover(@PathVariable long id, @RequestParam("file") MultipartFile file) {
+        return postService.uploadCover(id, file);
+    }
+
 }
