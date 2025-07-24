@@ -1,11 +1,27 @@
 package maurotuzzolino.u6_w1_d4_compito.payloads;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+
 import java.time.LocalDate;
 
 public class NewAuthorPayload {
+
+    @NotBlank(message = "Il nome è obbligatorio")
     private String nome;
+
+    @NotBlank(message = "Il cognome è obbligatorio")
     private String cognome;
+
+    @Email(message = "Email non valida")
+    @NotBlank(message = "L'email è obbligatoria")
     private String email;
+
+
+    @NotNull(message = "La data di nascita è obbligatoria")
+    @Past(message = "La data di nascita deve essere nel passato")
     private LocalDate dataDiNascita;
 
     public NewAuthorPayload(String nome, String cognome, String email, LocalDate dataDiNascita) {

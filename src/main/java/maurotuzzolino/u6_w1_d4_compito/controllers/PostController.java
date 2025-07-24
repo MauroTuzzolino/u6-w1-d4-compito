@@ -1,6 +1,7 @@
 package maurotuzzolino.u6_w1_d4_compito.controllers;
 
 
+import jakarta.validation.Valid;
 import maurotuzzolino.u6_w1_d4_compito.entities.Post;
 import maurotuzzolino.u6_w1_d4_compito.payloads.NewPostPayload;
 import maurotuzzolino.u6_w1_d4_compito.services.PostService;
@@ -26,7 +27,7 @@ public class PostController {
     // 2. POST /posts
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Post createPost(@RequestBody NewPostPayload body) {
+    public Post createPost(@RequestBody @Valid NewPostPayload body) {
         return postService.save(body);
     }
 
@@ -38,7 +39,7 @@ public class PostController {
 
     // 4. PUT /posts/{id}
     @PutMapping("/{id}")
-    public Post updatePost(@PathVariable long id, @RequestBody NewPostPayload body) {
+    public Post updatePost(@PathVariable long id, @RequestBody @Valid NewPostPayload body) {
         return postService.updateById(id, body);
     }
 

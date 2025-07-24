@@ -3,10 +3,13 @@ package maurotuzzolino.u6_w1_d4_compito.exceptions;
 import maurotuzzolino.u6_w1_d4_compito.payloads.ErrorPayload;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,5 +42,20 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
         return new ResponseEntity<>(payload, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorPayload> handleValidationErrors(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .collect(Collectors.toList());
+
+        ErrorPayload payload = new ErrorPayload(
+                "Errore di validazione: " + errors.toString(),
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+
+        return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
     }
 }
